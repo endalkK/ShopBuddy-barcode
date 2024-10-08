@@ -1,38 +1,81 @@
+# Import the necessary packages
+from picamera.array import PiRGBArray
+from picamera import PiCamera
+import time
 import cv2
-import numpy as np
 from pyzbar.pyzbar import decode
+import serial
 
-book = cv2.imread("book.png", 0)
-#Image is too large to show fully on screen
-book = cv2.resize(book, (0, 0), fx = 0.4, fy = 0.4)
-cv2.imshow("original", book)
+ser = serial.Serial("/dev/ttyUSB0", 9600, timeout = 0.1)
 
-# Binary inverse because we're making the black lines white and the white lines black
-adaptedBook = cv2.adaptiveThreshold(book, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 135, 17)
-#cv2.imshow("threshold", adaptedBook)
+def read_barcode(image_path):
+    """Reads barcode from the given image and returns the data."""
 
-output = cv2.connectedComponentsWithStats(adaptedBook, 4, cv2.CV_32S)
-(numLabels, labels, stats, centroids) = output
+    image = cv2.imread(image_path)
+    decoded_objects = decode(image)
 
-for i in range(numLabels):
-    if i > 0:   # 0th label is the background
-        x = stats[i, cv2.CC_STAT_LEFT]
-        y = stats[i, cv2.CC_STAT_TOP]
-        w = stats[i, cv2.CC_STAT_WIDTH]
-        h = stats[i, cv2.CC_STAT_HEIGHT]
-        area = stats[i, cv2.CC_STAT_AREA]
-        #cv2.rectangle(adaptedBook, (x, y), (x+w, y+h), 128, 2) #Puts a box around every line
+    if decoded_objects:
+        for obj in decoded_objects:
+            data = obj.data.decode('utf-8')
+            barcode_type = obj.type
 
-        if (h/w) < 1.4:
-            cv2.rectangle(adaptedBook, (x, y), (x+w, y+h), 0, -1) #Removes everything that isn't (h/w) < 2.1
-        if h < 100:
-            cv2.rectangle(adaptedBook, (x, y), (x+w, y+h), 0, -1)
-        if h > 1000:
-            cv2.rectangle(adaptedBook, (x, y), (x+w, y+h), 0, -1)
-        
-adaptedBook = cv2.bitwise_not(adaptedBook)
-adaptedBook = cv2.cvtColor(adaptedBook, cv2.COLOR_GRAY2BGR)
-adaptedBook = cv2.resize(adaptedBook, (0, 0), fx = 0.4, fy = 0.4)
-cv2.imshow("boxes", adaptedBook)
+            print("Barcode Type:", barcode_type)
+            print("Data:", data)
+            return data
+    else:
+        print("No barcode found in the image.")
+        return None
+
+#Dictonary for product information
+data_dict = {
+    "1234567890128": ["Orange", "1.99$"],
+    "1001001001002": ["Apple", "1.99$"],
+    "689375836755": ["Pasta","0.99$"]
+}
+data_list={
+}
+
+# Initialize the camera and grab a reference to the raw camera capture
+camera = PiCamera()
+camera.resolution = (400,400)
+camera.rotation = 180
+rawCapture = PiRGBArray(camera)
+
+# Allow the camera to warmup
+time.sleep(0.1)
+
+# Grab an image from the camera using arduino serial input
+while True:
+    data = ser.readline().decode().strip()
+    if data:
+        print(data)
+        camera.capture('test.jpg')
+
+        barcode = read_barcode('test.jpg')
+        if barcode in data_dict:
+            print(data_dict[barcode])
+            if barcode in data_list:
+                data_list[barcode]+= 1
+            else:
+                data_list[barcode] = 1
+            print(data_list)
+    
+
+# Example usage
+
+
+image_path = "test.jpg"  # Replace with the path to your image
+barcode_data = read_barcode(image_path)
+barcode_data_list = []
+barcode_data_list.append(barcode_data)
+for i in range(len(barcode_data_list)):
+    if barcode_data_list[i] in data_dict:
+        print(data_dict[barcode_data_list[i]])
+
+# Store the data (e.g., in a text file)
+if barcode_data:
+    with open("barcode_data.txt", "w") as f:
+        f.write(barcode_data)
 
 cv2.waitKey(0)
+exit()
