@@ -25,7 +25,7 @@ data_dict = {
     "9780307951526": ["Book", "10.99$"]
 }
 
-image_path = "book.png"  # Replace with the path to your image
+image_path = "C:/Users/dogma/Documents/ShopBuddy-barcode/picture.jpg"  # Replace with the path to your image
 barcode_data = read_barcode(image_path)
 barcode_data_list = []
 barcode_data_list.append(barcode_data)
