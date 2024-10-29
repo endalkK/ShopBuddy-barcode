@@ -5,7 +5,6 @@ import time
 import cv2
 from pyzbar.pyzbar import decode
 import serial
-
 ser = serial.Serial("/dev/ttyUSB0", 9600, timeout = 0.1)
 
 def read_barcode(image_path):
@@ -60,8 +59,6 @@ while True:
                 data_list[barcode] = 1
             print(data_list)
     
-
-# Example usage
 
 
 image_path = "test.jpg"  # Replace with the path to your image
