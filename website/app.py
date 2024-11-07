@@ -1,14 +1,13 @@
-from flask import Flask, render_template, Response, request, redirect, url_for
-
-
-app = Flask(__name__)
-
-@app.route("/")
-def index():
-    return render_template('index.html')
-
-@app.route("/forward/", methods=['POST'])
-def move_forward():
+from flask import Flask, render_template, request 
+ 
+app = Flask(__name__) 
+ 
+@app.route('/') 
+def index(): 
+    return render_template('index.html') 
+ 
+@app.route('/process_data', methods=['POST']) 
+def process_data(): 
+    # call your Python function here 
     
-    forward_message = "Moving Forward..."
-    return render_template('index.html', forward_message=forward_message)
+    return 'Success'

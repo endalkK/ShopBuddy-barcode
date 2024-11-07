@@ -1,10 +1,11 @@
-<!doctype html>
-<html>
-<head>
-    <link rel="icon" href="#" />
-</head>
-<form action="/forward/" method="post"></form>
-    <button name="forwardBtn" type="submit">Forward</button>
-</form>
-
-</html>
+<!DOCTYPE html> 
+<html> 
+<head> 
+    <title>Call Python function from HTML button click</title> 
+</head> 
+<body> 
+    <form action="{{ url_for('process_data') }}" method="post"> 
+        <button type="submit">Call Python function</button> 
+    </form> 
+</body> 
+</html> 
