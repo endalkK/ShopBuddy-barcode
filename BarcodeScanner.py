@@ -8,6 +8,30 @@ import serial
 
 ser = serial.Serial("/dev/ttyUSB0", 9600, timeout = 0.1)
 
+#initializes 
+def init():
+    #establishes serial connection
+    ser = serial.Serial("/dev/ttyUSB0", 9600, timeout = 0.1)
+    
+    #Dictonary for product information
+    data_dict = {
+        "1234567890128": ["Orange", "1.99$"],
+        "1001001001002": ["Apple", "1.99$"],
+        "689375836755": ["Pasta","0.99$"]
+    }
+    #Dictionary for shopping list input
+    data_list={
+    }
+    
+    # Initialize the camera and grab a reference to the raw camera capture
+    camera = PiCamera()
+    camera.resolution = (400,400)
+    camera.rotation = 180
+    rawCapture = PiRGBArray(camera)
+
+    # Allow the camera to warmup
+    time.sleep(0.1)
+    
 def read_barcode(image_path):
     """Reads barcode from the given image and returns the data."""
 
@@ -26,23 +50,7 @@ def read_barcode(image_path):
         print("No barcode found in the image.")
         return None
 
-#Dictonary for product information
-data_dict = {
-    "1234567890128": ["Orange", "1.99$"],
-    "1001001001002": ["Apple", "1.99$"],
-    "689375836755": ["Pasta","0.99$"]
-}
-data_list={
-}
-
-# Initialize the camera and grab a reference to the raw camera capture
-camera = PiCamera()
-camera.resolution = (400,400)
-camera.rotation = 180
-rawCapture = PiRGBArray(camera)
-
-# Allow the camera to warmup
-time.sleep(0.1)
+init()
 
 # Grab an image from the camera using arduino serial input
 camera.start_preview()
@@ -53,6 +61,7 @@ while True:
     camera.capture('test.jpg')
 
     barcode = read_barcode('test.jpg')
+    
     if barcode in data_dict:
         print(data_dict[barcode])
         if barcode in data_list:
@@ -67,7 +76,7 @@ camera.stop_preview()
 # Example usage
 
 
-image_path = "test.jpg"  # Replace with the path to your image
+'''image_path = "test.jpg"  # Replace with the path to your image
 barcode_data = read_barcode(image_path)
 barcode_data_list = []
 barcode_data_list.append(barcode_data)
@@ -78,7 +87,7 @@ for i in range(len(barcode_data_list)):
 # Store the data (e.g., in a text file)
 if barcode_data:
     with open("barcode_data.txt", "w") as f:
-        f.write(barcode_data)
+        f.write(barcode_data)'''
 
 cv2.waitKey(0)
 exit()
