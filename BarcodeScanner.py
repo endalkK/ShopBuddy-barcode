@@ -19,9 +19,6 @@ def init():
         "1001001001002": ["Apple", "1.99$"],
         "689375836755": ["Pasta","0.99$"]
     }
-    #Dictionary for shopping list input
-    data_list={
-    }
     
     # Initialize the camera and grab a reference to the raw camera capture
     camera = PiCamera()
@@ -52,27 +49,33 @@ def read_barcode(image_path):
 
 init()
 
+#take product name/identity from JSON
+input = ''
+for i in data_dict.values():
+    if(i[0] == input):
+        product = data_dict.keys()[data_dict.values().index(input)]
+
+def scan_barcode():
 # Grab an image from the camera using arduino serial input
-camera.start_preview()
-while True:
-    data = ser.readline().decode().strip()
-    if data:
-        break
-    camera.capture('test.jpg')
+    camera.start_preview()
+    while True:
+        data = ser.readline().decode().strip()
+        if data:
+            break
+        camera.capture('test.jpg')
 
-    barcode = read_barcode('test.jpg')
+        barcode = read_barcode('test.jpg')
     
-    if barcode in data_dict:
-        print(data_dict[barcode])
-        if barcode in data_list:
-            data_list[barcode]+= 1
-        else:
-            data_list[barcode] = 1
-        print(data_list)
-        time.sleep(1)
-    time.sleep(0.25)
-camera.stop_preview()
+        if barcode == product:
+            print(data_dict[barcode])
+            time.sleep(1)
+            return True
+        
+        time.sleep(0.25)
+    camera.stop_preview()
 
+
+read_barcode()
 # Example usage
 
 
